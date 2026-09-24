@@ -32,6 +32,7 @@ bash install.sh
 | `AILOGGER_VERSION=v1.2.3` | pin a release tag instead of taking the latest |
 | `BIN_DIR=/usr/local/bin` | install the binary somewhere other than `~/.local/bin` |
 | `AILOGGER_REPO=owner/repo` | fetch releases from a different repository |
+| `AILOGGER_SIGNER_REPO=owner/repo` | the repository named in the cosign certificate identity (the workflow that signs the release) |
 | `AILOGGER_BASE_URL=…` | replace the release download URL entirely |
 
 ## From a release archive
@@ -61,13 +62,13 @@ curl -fsSLO $B/$A; curl -fsSLO $B/checksums.txt
 curl -fsSLO $B/checksums.txt.sig; curl -fsSLO $B/checksums.txt.pem
 cosign verify-blob \
   --certificate checksums.txt.pem --signature checksums.txt.sig \
-  --certificate-identity-regexp '^https://github.com/robertatkinson3570/' \
+  --certificate-identity-regexp '^https://github.com/robertatkinson3570/promptreceipt-src/' \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com \
   checksums.txt
 sha256sum -c --ignore-missing checksums.txt   # macOS: shasum -a 256 -c --ignore-missing checksums.txt
 ```
 
-The first command proves `checksums.txt` was produced by the release workflow; the second proves the archive you downloaded is the one it lists.
+The first command proves `checksums.txt` was produced by the release workflow; the second proves the archive you downloaded is the one it lists. The identity names `promptreceipt-src` rather than this repository because the release is built and signed by the workflow in the source repository and then published here.
 
 ## From source
 

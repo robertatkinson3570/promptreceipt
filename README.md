@@ -24,6 +24,8 @@ curl -fsSL https://raw.githubusercontent.com/robertatkinson3570/promptreceipt/ma
 ailogger status
 ```
 
+Releases are published at <https://github.com/robertatkinson3570/promptreceipt/releases> (first release coming), and the command above installs the latest one.
+
 Log out and back in afterwards so every app picks up the proxy environment variables. To remove it: `ailogger env uninstall && ailogger ca uninstall && rm -rf ~/.local/share/ailogger ~/.config/ailogger ~/.local/bin/ailogger`.
 
 **How it works.** Apps talk to an explicit HTTP proxy on `127.0.0.1:8228`. Hosts on a watch list of AI providers are terminated with a root certificate that exists only on your machine and is name-constrained to those hosts; every other host is a blind tunnel that is never decrypted. Request and response bodies are copied, not altered — nothing is added to your requests. Secrets are redacted before anything touches disk.
@@ -85,7 +87,7 @@ app --HTTPS_PROXY--> ailogger :8228 --+-- watched AI host: TLS terminated with t
 
 Default retention is 30 days (`local_retention_days`). Delivered rows older than that are deleted with SQLite `secure_delete` and a vacuum, so the file actually shrinks; rows no sink ever took are dropped at three times that age anyway, so an unwritable sink cannot keep prompts on disk forever. Set `content: false` to keep every number and store no prompt or response at all.
 
-Size: roughly **1 KB per call** with metadata only, and closer to **90 KB** for one Claude Code turn with content on, because the whole conversation and every tool result go in the request.
+Size: about **1 KB per call** with content off. With content on, a Claude Code call stores roughly **100 KB** on average and up to about **700 KB**, because Claude Code resends its full context each turn — on the machine this was measured on, 20 calls used **2 MB**. Retention defaults to 30 days; `content: false` keeps only the metadata.
 
 Run `ailogger run` and a dashboard is served on `http://127.0.0.1:8229` — loopback only, behind a random per-run token printed by `ailogger status`. It shows totals by day, provider, model and app; an events list with filters; and a per-event detail page with the redacted request and response.
 
@@ -116,7 +118,7 @@ Footprint: 15 MB binary, about 18 MB resident and 0% CPU while idle.
 | **Compliance** | $20 per seat / month | Everything in Team plus policy push, redaction rules, SIEM export (Sentinel, Splunk, webhook), SSO, self-hosted option, 1-year retention. |
 | **Enterprise** | Custom | Windows and MDM packaging, system-service mode, SLA, invoicing. |
 
-The console is **early access** and prices may change before general availability. A seat is a person, not a machine. The free tier needs no card and no sign-up: it is the binary in this repository's releases. See <https://promptreceipt.com/pricing>.
+The console is **early access** and prices may change before general availability. A seat is a person, not a machine. The free tier needs no card and no sign-up: it is the binary published in this repository's releases. See <https://promptreceipt.com/pricing>.
 
 ## FAQ
 
@@ -130,7 +132,7 @@ Today, yes. The agent runs as the user, capture depends on the proxy environment
 
 ### How big does the data get?
 
-About 1 KB per call with metadata only, and about 90 KB for a single Claude Code turn with prompts and replies stored, because the entire conversation and every tool result are resent each turn. A heavy day of agent coding is therefore tens of megabytes with content on and a rounding error with it off. Default retention is 30 days and old rows are actually deleted.
+About 1 KB per call with content off. With content on, a Claude Code call stores roughly 100 KB on average and up to about 700 KB, because Claude Code resends its full context each turn — 20 measured calls used 2 MB. A heavy day of agent coding is therefore hundreds of megabytes with content on and a rounding error with it off. Retention defaults to 30 days, old rows are actually deleted, and `content: false` keeps only the metadata.
 
 ### Is it SOC 2 compliant?
 
@@ -162,7 +164,7 @@ Yes. `ailogger export --since 24h --out events.jsonl` writes matching events and
 
 ### Is the source open?
 
-The agent is Apache-2.0. This repository holds the documentation, the install script and the release binaries; the source repository is being prepared for publication and the paid console is licensed separately.
+The agent is Apache-2.0. This repository holds the documentation, the install script and the released binaries; the source repository is being prepared for publication and the paid console is licensed separately.
 
 ### Does it support Windows?
 

@@ -114,7 +114,7 @@ In a SQLite spool and a JSONL file under `~/.local/share/ailogger`, mode 0600, a
 
 ### How big does the data get?
 
-About 1 KB per call with metadata only, and about 90 KB for one Claude Code turn with content stored, because the whole conversation and every tool result are resent in each request. A heavy day of agent coding is therefore tens of megabytes with content on and a rounding error with it off. Compression of stored content is coming.
+About 1 KB per call with content off. With content on, a Claude Code call stores roughly 100 KB on average and up to about 700 KB, because Claude Code resends its full context each turn — 20 measured calls used 2 MB. A heavy day of agent coding is therefore hundreds of megabytes with content on and a rounding error with it off. Retention defaults to 30 days; `content: false` keeps only the metadata. Compression of stored content is coming.
 
 ### How long is it kept, and is it really deleted?
 

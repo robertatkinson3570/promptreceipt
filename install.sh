@@ -4,6 +4,10 @@
 set -euo pipefail
 
 AILOGGER_REPO="${AILOGGER_REPO:-robertatkinson3570/promptreceipt}"
+# Downloads come from the public repository above; the releases are built and
+# signed by the workflow in the private source repository, so the cosign
+# certificate identity names that one instead.
+AILOGGER_SIGNER_REPO="${AILOGGER_SIGNER_REPO:-robertatkinson3570/promptreceipt-src}"
 BIN_DIR="${BIN_DIR:-$HOME/.local/bin}"
 # The agent/ directory when run from a checkout. Under `curl ... | bash` there is
 # no script file, so BASH_SOURCE is unset and here stays empty: the download
@@ -68,7 +72,7 @@ else
     cosign verify-blob \
       --certificate "$tmp/checksums.txt.pem" \
       --signature "$tmp/checksums.txt.sig" \
-      --certificate-identity-regexp "^https://github.com/$AILOGGER_REPO/" \
+      --certificate-identity-regexp "^https://github.com/$AILOGGER_SIGNER_REPO/" \
       --certificate-oidc-issuer https://token.actions.githubusercontent.com \
       "$tmp/checksums.txt" \
       || { echo "signature verification failed for checksums.txt; refusing to install" >&2; exit 1; }
